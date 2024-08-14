@@ -15,10 +15,9 @@ enum UpdatefieldFlags
     UF_FLAG_SPECIAL_INFO        = 0x010,
     UF_FLAG_PARTY_MEMBER        = 0x020,
     UF_FLAG_UNIT_ALL            = 0x040,
-    UF_FLAG_DYNAMIC             = 0x080,
-    UF_FLAG_0x100               = 0x100,
-    UF_FLAG_URGENT              = 0x200,
-    UF_FLAG_URGENT_SELF_ONLY    = 0x400
+    UF_FLAG_VIEWER_DEPENDENT    = 0x080,
+    UF_FLAG_URGENT              = 0x100,
+    UF_FLAG_URGENT_SELF_ONLY    = 0x200
 };
 
 Data::Data(std::shared_ptr<Process> wow, UpdateFieldOffsets const* offsets) : _process(wow)
@@ -37,8 +36,8 @@ Data::Data(std::shared_ptr<Process> wow, UpdateFieldOffsets const* offsets) : _p
     CorpseFields = _process->ReadArray<UpdateField>(offsets->CorpseFields, offsets->CorpseCount);
     AreaTriggerFields = _process->ReadArray<UpdateField>(offsets->AreaTriggerFields, offsets->AreaTriggerCount);
     SceneObjectFields = _process->ReadArray<UpdateField>(offsets->SceneObjectFields, offsets->SceneObjectCount);
-    ConversationFields = _process->ReadArray<UpdateField>(offsets->ConversationFields, offsets->ConversationCount);
-    ConversationDynamicFields = _process->ReadArray<DynamicUpdateField>(offsets->ConversationDynamicFields, offsets->ConversationDynamicCount);
+    //ConversationFields = _process->ReadArray<UpdateField>(offsets->ConversationFields, offsets->ConversationCount);
+    //ConversationDynamicFields = _process->ReadArray<DynamicUpdateField>(offsets->ConversationDynamicFields, offsets->ConversationDynamicCount);
 }
 
 void UpdateFieldDumper::BuildUpdateFields(Outputs& outputs, std::string const& outputName, std::vector<UpdateField> const& data, std::string const& end, std::string const& fieldBase)
@@ -139,8 +138,8 @@ void UpdateFieldDumper::DumpEnums(std::ofstream& updateFieldsDump)
     DumpEnum(updateFieldsDump, AreaTriggerDynamicFields);
     DumpEnum(updateFieldsDump, SceneObjectFields);
     DumpEnum(updateFieldsDump, SceneObjectDynamicFields);
-    DumpEnum(updateFieldsDump, ConversationFields);
-    DumpEnum(updateFieldsDump, ConversationDynamicFields);
+    //DumpEnum(updateFieldsDump, ConversationFields);
+    //DumpEnum(updateFieldsDump, ConversationDynamicFields);
 }
 
 std::string UpdateFieldDumper::GetUpdateFieldFlagName(std::uint16_t flag)
@@ -149,17 +148,16 @@ std::string UpdateFieldDumper::GetUpdateFieldFlagName(std::uint16_t flag)
         return "NONE";
 
     std::string name;
-    AppendIf(flag, UF_FLAG_PUBLIC, name, "PUBLIC", ", ");
-    AppendIf(flag, UF_FLAG_PRIVATE, name, "PRIVATE", ", ");
-    AppendIf(flag, UF_FLAG_OWNER, name, "OWNER", ", ");
-    AppendIf(flag, UF_FLAG_ITEM_OWNER, name, "ITEM_OWNER", ", ");
-    AppendIf(flag, UF_FLAG_SPECIAL_INFO, name, "SPECIAL_INFO", ", ");
-    AppendIf(flag, UF_FLAG_PARTY_MEMBER, name, "PARTY_MEMBER", ", ");
-    AppendIf(flag, UF_FLAG_UNIT_ALL, name, "UNIT_ALL", ", ");
-    AppendIf(flag, UF_FLAG_DYNAMIC, name, "DYNAMIC", ", ");
-    AppendIf(flag, UF_FLAG_0x100, name, "0x100", ", ");
-    AppendIf(flag, UF_FLAG_URGENT, name, "URGENT", ", ");
-    AppendIf(flag, UF_FLAG_URGENT_SELF_ONLY, name, "URGENT_SELF_ONLY", ", ");
+    AppendIf(flag, UF_FLAG_PUBLIC, name, "UF_FLAG_PUBLIC", ", ");
+    AppendIf(flag, UF_FLAG_PRIVATE, name, "UF_FLAG_PRIVATE", ", ");
+    AppendIf(flag, UF_FLAG_OWNER, name, "UF_FLAG_OWNER", ", ");
+    AppendIf(flag, UF_FLAG_ITEM_OWNER, name, "UF_FLAG_ITEM_OWNER", ", ");
+    AppendIf(flag, UF_FLAG_PARTY_MEMBER, name, "UF_FLAG_PARTY_MEMBER", ", ");
+    AppendIf(flag, UF_FLAG_SPECIAL_INFO, name, "UF_FLAG_SPECIAL_INFO", ", ");
+    AppendIf(flag, UF_FLAG_UNIT_ALL, name, "UF_FLAG_UNIT_ALL", ", ");
+    AppendIf(flag, UF_FLAG_VIEWER_DEPENDENT, name, "UF_FLAG_VIEWER_DEPENDENT", ", ");
+    AppendIf(flag, UF_FLAG_URGENT, name, "UF_FLAG_URGENT", ", ");
+    AppendIf(flag, UF_FLAG_URGENT_SELF_ONLY, name, "UF_FLAG_URGENT_SELF_ONLY", ", ");
     return name;
 }
 
@@ -173,11 +171,10 @@ std::string UpdateFieldDumper::GetUpdateFieldFlagFullName(std::uint16_t flag)
     AppendIf(flag, UF_FLAG_PRIVATE, name, "UF_FLAG_PRIVATE", " | ");
     AppendIf(flag, UF_FLAG_OWNER, name, "UF_FLAG_OWNER", " | ");
     AppendIf(flag, UF_FLAG_ITEM_OWNER, name, "UF_FLAG_ITEM_OWNER", " | ");
-    AppendIf(flag, UF_FLAG_SPECIAL_INFO, name, "UF_FLAG_SPECIAL_INFO", " | ");
     AppendIf(flag, UF_FLAG_PARTY_MEMBER, name, "UF_FLAG_PARTY_MEMBER", " | ");
+    AppendIf(flag, UF_FLAG_SPECIAL_INFO, name, "UF_FLAG_SPECIAL_INFO", " | ");
     AppendIf(flag, UF_FLAG_UNIT_ALL, name, "UF_FLAG_UNIT_ALL", " | ");
-    AppendIf(flag, UF_FLAG_DYNAMIC, name, "UF_FLAG_DYNAMIC", " | ");
-    AppendIf(flag, UF_FLAG_0x100, name, "UF_FLAG_0x100", " | ");
+    AppendIf(flag, UF_FLAG_VIEWER_DEPENDENT, name, "UF_FLAG_VIEWER_DEPENDENT", " | ");
     AppendIf(flag, UF_FLAG_URGENT, name, "UF_FLAG_URGENT", " | ");
     AppendIf(flag, UF_FLAG_URGENT_SELF_ONLY, name, "UF_FLAG_URGENT_SELF_ONLY", " | ");
     name.append(1, ',');
@@ -217,8 +214,8 @@ UpdateFieldDumper::UpdateFieldDumper(std::shared_ptr<Data> input, std::uint32_t 
     AreaTriggerDynamicFields.E.SetPaddingAfterValueName(enumPadding);
     SceneObjectFields.E.SetPaddingAfterValueName(enumPadding);
     SceneObjectDynamicFields.E.SetPaddingAfterValueName(enumPadding);
-    ConversationFields.E.SetPaddingAfterValueName(enumPadding);
-    ConversationDynamicFields.E.SetPaddingAfterValueName(enumPadding);
+    //ConversationFields.E.SetPaddingAfterValueName(enumPadding);
+    //ConversationDynamicFields.E.SetPaddingAfterValueName(enumPadding);
 }
 
 std::ostream& operator<<(std::ostream& stream, hex_number const& hex)
