@@ -17,7 +17,7 @@ void CppUpdateFieldDumper::Dump()
     BuildDynamicUpdateFields(UnitDynamicFields, "UnitDynamicFields", GetInputData()->UnitDynamicFields, "UNIT_DYNAMIC_END", "OBJECT_DYNAMIC_END");
 
     BuildUpdateFields(PlayerFields, "PlayerFields", GetInputData()->PlayerFields, "PLAYER_END", "UNIT_END");
-    Enum::Member head = *(PlayerFields.E.GetMember("PLAYER_FIELD_INV_SLOT_HEAD"));
+    Enum::Member head = *(PlayerFields.E.GetMember("PLAYER_FIELD_INV_SLOTS"));
     head.ValueName = "PLAYER_FIELD_END_NOT_SELF";
     head.Comment = "";
     PlayerFields.E.AddMemberSorted(std::move(head));
@@ -38,8 +38,8 @@ void CppUpdateFieldDumper::Dump()
     BuildUpdateFields(SceneObjectFields, "SceneObjectFields", GetInputData()->SceneObjectFields, "SCENEOBJECT_END", "OBJECT_END");
     BuildDynamicUpdateFields(SceneObjectDynamicFields, "SceneObjectDynamicFields", std::vector<DynamicUpdateField>(), "SCENEOBJECT_DYNAMIC_END", "OBJECT_DYNAMIC_END");
 
-    BuildUpdateFields(ConversationFields, "ConversationFields", GetInputData()->ConversationFields, "CONVERSATION_END", "OBJECT_END");
-    BuildDynamicUpdateFields(ConversationDynamicFields, "ConversationDynamicFields", GetInputData()->ConversationDynamicFields, "CONVERSATION_DYNAMIC_END", "OBJECT_DYNAMIC_END");
+    //BuildUpdateFields(ConversationFields, "ConversationFields", GetInputData()->ConversationFields, "CONVERSATION_END", "OBJECT_END");
+    //BuildDynamicUpdateFields(ConversationDynamicFields, "ConversationDynamicFields", GetInputData()->ConversationDynamicFields, "CONVERSATION_DYNAMIC_END", "OBJECT_DYNAMIC_END");
 
     time_t now = time(nullptr);
     tm date;
@@ -49,8 +49,7 @@ void CppUpdateFieldDumper::Dump()
     std::ofstream updateFieldsDump("UpdateFields.h");
 
     updateFieldsDump << "/*" << std::endl;
-    updateFieldsDump << " * Copyright (C) 2008-" << date.tm_year << " TrinityCore <http://www.trinitycore.org/>" << std::endl;
-    updateFieldsDump << " * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>" << std::endl;
+    updateFieldsDump << " * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information" << std::endl;
     updateFieldsDump << " *" << std::endl;
     updateFieldsDump << " * This program is free software; you can redistribute it and/or modify it" << std::endl;
     updateFieldsDump << " * under the terms of the GNU General Public License as published by the" << std::endl;
@@ -80,7 +79,7 @@ void CppUpdateFieldDumper::Dump()
     std::ofstream updateFieldFlags("UpdateFieldFlags.cpp");
 
     updateFieldFlags << "/*" << std::endl;
-    updateFieldFlags << " * Copyright (C) 2008-" << date.tm_year << " TrinityCore <http://www.trinitycore.org/>" << std::endl;
+    updateFieldFlags << " * This file is part of the Legends of Azeroth Pandaria Project. See THANKS file for Copyright information" << std::endl;
     updateFieldFlags << " *" << std::endl;
     updateFieldFlags << " * This program is free software; you can redistribute it and/or modify it" << std::endl;
     updateFieldFlags << " * under the terms of the GNU General Public License as published by the" << std::endl;
@@ -129,11 +128,11 @@ void CppUpdateFieldDumper::Dump()
     DumpFlags(updateFieldFlags, "SceneObjectUpdateFieldFlags[SCENEOBJECT_END]",
         { &GetInputData()->ObjectFields, &GetInputData()->SceneObjectFields });
 
-    DumpFlags(updateFieldFlags, "ConversationUpdateFieldFlags[CONVERSATION_END]",
-        { &GetInputData()->ObjectFields, &GetInputData()->ConversationFields });
+    //DumpFlags(updateFieldFlags, "ConversationUpdateFieldFlags[CONVERSATION_END]",
+    //    { &GetInputData()->ObjectFields, &GetInputData()->ConversationFields });
 
-    DumpDynamicFlags(updateFieldFlags, "ConversationDynamicUpdateFieldFlags[CONVERSATION_DYNAMIC_END]",
-        { &GetInputData()->ConversationDynamicFields });
+    //DumpDynamicFlags(updateFieldFlags, "ConversationDynamicUpdateFieldFlags[CONVERSATION_DYNAMIC_END]",
+    //    { &GetInputData()->ConversationDynamicFields });
 
     updateFieldFlags.close();
 }
@@ -158,15 +157,14 @@ void CppUpdateFieldDumper::DumpFlags(std::ofstream& file, std::string const& var
         while (j < fieldDefs.size())
         {
             std::string flagName = GetUpdateFieldFlagFullName(fieldDefs[j].Flags);
-            std::string pad(PaddingSize - flagName.length(), ' ');
             std::string fieldName = GetInputData()->GetString(fieldDefs[j].NameAddress);
             std::string oldName = GetOldName(fieldName.c_str());
             if (!oldName.empty())
                 fieldName = oldName;
 
-            file << Tab << flagName << pad << " // " << fieldName << std::endl;
+            file << Tab << flagName << " // " << fieldName << std::endl;
             for (std::uint32_t k = 1; k < fieldDefs[j].Size; ++k)
-                file << Tab << flagName << pad << " // " << fieldName << '+' << k << std::endl;
+                file << Tab << flagName << " // " << fieldName << " + " << k << std::endl;
 
             j += fieldDefs[j].Size;
         }
@@ -187,13 +185,12 @@ void CppUpdateFieldDumper::DumpDynamicFlags(std::ofstream& file, std::string con
         while (j < fieldDefs.size())
         {
             std::string flagName = GetUpdateFieldFlagFullName(fieldDefs[j].Flags);
-            std::string pad(PaddingSize - flagName.length(), ' ');
             std::string fieldName = GetInputData()->GetString(fieldDefs[j].NameAddress);
             std::string oldName = GetOldName(fieldName.c_str());
             if (!oldName.empty())
                 fieldName = oldName;
 
-            file << Tab << flagName << pad << " // " << fieldName << std::endl;
+            file << Tab << flagName << " // " << fieldName << std::endl;
             ++j;
         }
     }

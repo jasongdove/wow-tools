@@ -65,6 +65,15 @@ public:
     template<typename T>
     std::vector<T> ReadArray(void const* address, std::size_t arraySize) { return ReadArray<T>(reinterpret_cast<std::uintptr_t>(address), arraySize, false); }
 
+    bool IsValidAddress(void const* address)
+    {
+        MEMORY_BASIC_INFORMATION mbi;
+        if (!VirtualQueryEx(_handle, address, &mbi, sizeof(mbi)))
+            return false;
+
+        return mbi.Protect != PAGE_NOACCESS;
+    }
+
     FileVersionInfo const& GetFileVersionInfo() const { return _version; }
 
 private:
@@ -80,10 +89,10 @@ std::string const& Process::Read<std::string>(std::uintptr_t address, bool relat
 
 namespace ProcessTools
 {
-    std::shared_ptr<Process> Open(TCHAR* name, DWORD build, bool log);
+    std::shared_ptr<Process> Open(TCHAR const* name, DWORD build, bool log);
 
-    HANDLE GetHandleByName(TCHAR* name, DWORD_PTR* baseAddress, DWORD build, bool log, FileVersionInfo* versionInfo);
-    void GetFileVersion(TCHAR* path, FileVersionInfo* info);
+    HANDLE GetHandleByName(TCHAR const* name, DWORD_PTR* baseAddress, DWORD build, bool log, FileVersionInfo* versionInfo);
+    void GetFileVersion(TCHAR const* path, FileVersionInfo* info);
 }
 
 #endif // ProcessTools_h__
