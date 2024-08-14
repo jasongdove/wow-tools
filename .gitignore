@@ -4,3 +4,7 @@ Release/
 *.user
 *.sdf
 *.opensdf
+*.VC.*db
+*.vs/
+**obj/
+_ReSharper*

@@ -54,8 +54,8 @@ int main()
     if (!dll)
         return 1;
 
-    ExportFn export = (ExportFn)GetProcAddress(dll, "Extract");
-    if (!export)
+    ExportFn extract = (ExportFn)GetProcAddress(dll, "Extract");
+    if (!extract)
     {
         FreeLibrary(dll);
         return 1;
@@ -96,6 +96,6 @@ int main()
     offsets.ConversationCount = CONVERSATION_COUNT;
     offsets.ConversationDynamicCount = CONVERSATION_DYNAMIC_COUNT;
 
-    export(&offsets);
+    extract(&offsets);
     FreeLibrary(dll);
 }
